@@ -22,50 +22,59 @@ int main(int argc, char **argv)
 	
 	//Set up thread pool. Threads are not killed till end of program.
 	omp_set_num_threads(maxT); //sets the DEFAULT number of threads to create/use in a parallel section.
-	#pragma omp parallel num_threads(maxT) //to be explicit as well
-	{
-		#pragma omp single
-		printf("startup:\tnum threads: %d\n", omp_get_num_threads());
-		
-		#pragma omp for
-		for (int i = 0; i < maxT; i++)
-		{
-			doAlmostNothing();
-			printf("id: %d\tnum threads: %d\n", omp_get_thread_num(), omp_get_num_threads());
-			
-		}
-		
-	}
 	
-	
-	printf("Max vals...\nM: %d\tN: %d\tT: %d\n", maxM, N, maxT);
+	//~ printf("Max vals...\nM: %d\tN: %d\tT: %d\n", maxM, N, maxT);
 	
 	//create a filename structure for easy scripting.
 	char dataDirectory[] = "../data/";
 	char picsDirectory[] = "../pics/";
 	//~ testStringPass(dataDirectory);
 	
+	
+	
+	//CELL//////
 	char thisDataName[MAX_FILENAME_LEN];
-	sprintf(thisDataName, "%sm%05dn%05dt%05d", dataDirectory, maxM, N, maxT);
+	sprintf(thisDataName, "%scell-m%05dn%05dt%05d", dataDirectory, maxM, N, maxT);
 	char thisPicsName[MAX_FILENAME_LEN];
-	sprintf(thisPicsName, "%sm%05dn%05dt%05d", picsDirectory, maxM, N, maxT);
+	sprintf(thisPicsName, "%scell-m%05dn%05dt%05d", picsDirectory, maxM, N, maxT);
+	printf("Data file path and name:\t%s\n", thisDataName);
+	printf("Pics file path and name:\t%s\n", thisPicsName);
 	
-	printf("Data file path and name on next line:\n%s\n", thisDataName);
-	printf("Pics file path and name on next line:\n%s\n", thisPicsName);
-	
-	deleteFileIfExists(thisDataName);
-	deleteFileIfExists(thisPicsName);
-	
-	//~ printf("enter any number to continue...\n");
-	//~ int a;
-	//~ scanf("%d", &a);
-	
-	
-	//~ char testType[] = "overall";
-	//~ runThreadTest(thisDataName, thisPicsName, maxM, N, maxT, testType);
+	deleteFileIfExists(thisDataName); //So that only data from the current program is saved.
+	//maybe make a file to keep track of the current version. Then I can use multiple runs of data safely.
 	
 	char cellString[] = "Cell";
 	runFuncTest(multSquareArraysThreadCell, thisDataName, thisPicsName, maxM, N, maxT, cellString);
+	
+	
+	//Might be able to use same filenames and print on same graph with labels? do this for now.
+	//ROW//////
+	//~ thisDataName[MAX_FILENAME_LEN];
+	sprintf(thisDataName, "%srow-m%05dn%05dt%05d", dataDirectory, maxM, N, maxT);
+	//~ thisPicsName[MAX_FILENAME_LEN];
+	sprintf(thisPicsName, "%srow-m%05dn%05dt%05d", picsDirectory, maxM, N, maxT);
+	printf("Data file path and name:\t%s\n", thisDataName);
+	printf("Pics file path and name:\t%s\n", thisPicsName);
+	
+	deleteFileIfExists(thisDataName); //So that only data from the current program is saved.
+	//maybe make a file to keep track of the current version. Then I can use multiple runs of data safely.
+	
+	char rowString[] = "Row";
+	runFuncTest(multSquareArraysThreadRow, thisDataName, thisPicsName, maxM, N, maxT, rowString);
+	
+	
+	//COL//////
+	//~ thisDataName[MAX_FILENAME_LEN];
+	sprintf(thisDataName, "%scol-m%05dn%05dt%05d", dataDirectory, maxM, N, maxT);
+	//~ thisPicsName[MAX_FILENAME_LEN];
+	sprintf(thisPicsName, "%scol-m%05dn%05dt%05d", picsDirectory, maxM, N, maxT);
+	printf("Data file path and name:\t%s\n", thisDataName);
+	printf("Pics file path and name:\t%s\n", thisPicsName);
+	
+	deleteFileIfExists(thisDataName); //So that only data from the current program is saved.
+	
+	char colString[] = "Col";
+	runFuncTest(multSquareArraysThreadCol, thisDataName, thisPicsName, maxM, N, maxT, colString);
 	
 
 	

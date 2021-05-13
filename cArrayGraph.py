@@ -12,12 +12,13 @@ import plotting
 
 
 def main(args):
-	if len(args) != 3:
+	if len(args) != 4:
 		print("bad input");
 		sys.exit(-1)
 	else:
 		filename = sys.argv[1]
 		picFile = sys.argv[2]
+		testType = sys.argv[3]
 	
 	#m n t time name
 	data = plotting.readListListFromFile(filename)
@@ -29,7 +30,7 @@ def main(args):
 	
 	
 	plotting.printGraph(M, T, TIME,
-			"Time for Individual Cell Method.",
+			"Time for " + str(testType) + " Method.",
 			"Square Size (M)", "Threads (T)", "Time in seconds", picFile)
 	os.system("sync")
 	# ~ os.system(f"optipng ../pics/{picOutName}.png")

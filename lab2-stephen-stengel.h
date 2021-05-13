@@ -111,7 +111,8 @@ int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, i
 	//~ for (int tee = 1; tee <= maxT; tee += tIncrement)
 	//~ for (int tee = maxT; tee > 0; tee -= tIncrement)
 	
-	int tTop = tIncrement * numThreadTests;
+	int tTop = maxT - (maxT - (tIncrement * (numThreadTests - 1))) + 1;
+	printf("tTop: %d\n", tTop);
 	for (int tee = tTop; tee > 0; tee -= tIncrement)//backwards keeps openMP from killing useful threads
 	{
 		printf("This T: %d\n", tee);
@@ -129,7 +130,7 @@ int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, i
 	printf("runfunctest: %s complete! now printing to file...\n", testType);
 	//make graph
 	char printCommandCell[MAX_COMMAND_LEN];
-	sprintf(printCommandCell, "python3 cArrayGraph.py %s %s", dataFile, picsFile);
+	sprintf(printCommandCell, "python3 cArrayGraph.py %s %s %s", dataFile, picsFile, testType);
 	
 	system( printCommandCell );
 	printf("done!");
@@ -208,6 +209,58 @@ double **multSquareArraysThreadCell(double **original, double **intermediate, do
 		for (i = 0; i < size; i++)
 		{
 			for (j = 0; j < size; j++)
+			{
+				for (k = 0; k < size; k++)
+				{
+					//critical here? no, each thread has own spot.
+					//false sharing though, need to move array copies into this parallel section.
+					output[i][j] += original[i][k] * intermediate[k][j];
+				}
+			}
+		}
+	}
+	
+	return output;
+}
+
+double **multSquareArraysThreadRow(double **original, double **intermediate, double **output, int size, int tee)
+{
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	#pragma omp parallel num_threads(tee) //only use this many threads out of the threadpool
+	{
+		#pragma omp for private(i, j, k) nowait //each thread has its own row i.
+		for (i = 0; i < size; i++)
+		{
+			for (j = 0; j < size; j++)
+			{
+				for (k = 0; k < size; k++)
+				{
+					//critical here? no, each thread has own spot.
+					//false sharing though, need to move array copies into this parallel section.
+					output[i][j] += original[i][k] * intermediate[k][j];
+				}
+			}
+		}
+	}
+	
+	return output;
+}
+
+
+//Same as row but with the i and j loops switched.
+double **multSquareArraysThreadCol(double **original, double **intermediate, double **output, int size, int tee)
+{
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	#pragma omp parallel num_threads(tee) //only use this many threads out of the threadpool
+	{
+		#pragma omp for private(i, j, k) nowait //each thread has its own col j.
+		for (j = 0; j < size; j++)
+		{
+			for (i = 0; i < size; i++)
 			{
 				for (k = 0; k < size; k++)
 				{

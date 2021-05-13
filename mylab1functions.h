@@ -759,7 +759,7 @@ int checkInput(int argc, char **argv)
 	//~ if ( !isInputTwoNumbers(argc, argv) )
 	if ( !isInputThreeNumbers(argc, argv) )
 	{
-		printf("Input must be three integers. M: the size of the side of the square\tN: The power\tT: The maximum number of threads in the thread-pool for all tests.\n");
+		printf("Input must be three positive integers!\n");
 		printTextFile(HELP_TEXT_PATH);
 		exit( -1);
 	}

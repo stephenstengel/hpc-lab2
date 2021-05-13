@@ -1,1 +1,4 @@
-this is the helpfile lol
+helpfile lol
+M: Max size of each side of square matrix
+N: The number of times to power. Does not vary in these tests.
+T: Max number of threads in thread pool.

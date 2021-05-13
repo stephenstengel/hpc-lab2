@@ -56,22 +56,18 @@ int main(int argc, char **argv)
 	deleteFileIfExists(thisDataName);
 	deleteFileIfExists(thisPicsName);
 	
-	//~ //test write
-	//~ writeDataToFile(thisDataName, 1, 1, 2, 0.000);
-	//~ writeDataToFile(thisDataName, 5, 7, 8, 0.100);
-	
-	//~ printf("printing the file...\n");
-	//~ printTextFile(thisDataName);
-	
-	//~ printf("deleting it again...\n");
-	//~ deleteFileIfExists(thisDataName);
-	
 	//~ printf("enter any number to continue...\n");
 	//~ int a;
 	//~ scanf("%d", &a);
 	
-	runThreadTest(thisDataName, thisPicsName, maxM, N, maxT);
 	
+	//~ char testType[] = "overall";
+	//~ runThreadTest(thisDataName, thisPicsName, maxM, N, maxT, testType);
+	
+	char cellString[] = "Cell";
+	runFuncTest(multSquareArraysThreadCell, thisDataName, thisPicsName, maxM, N, maxT, cellString);
+	
+
 	
 	return 0;
 }

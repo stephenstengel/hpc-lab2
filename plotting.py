@@ -33,14 +33,16 @@ def main(args):
 	
 	return 0
 
-
-def convertToThreeArrays(data):
-	X, Y, Z = map(list, zip(*data))
-	X = numpy.array(X, dtype=numpy.float32)
-	Y = numpy.array(Y, dtype=numpy.float32)
-	Z = numpy.array(Z, dtype=numpy.float32)
+#Name remains a list
+def convertToFiveArrays(data):
+	M, N, T, TIME, NAME = map(list, zip(*data))
 	
-	return X, Y, Z
+	M = numpy.array(M, dtype=numpy.float32)
+	N = numpy.array(N, dtype=numpy.float32)
+	T = numpy.array(T, dtype=numpy.float32)
+	TIME = numpy.array(TIME, dtype=numpy.float32)
+	
+	return M, N, T, TIME, NAME
 
 
 #Prints a list of tupples to file.
@@ -67,8 +69,8 @@ def readListListFromFile(filename):
 def printGraph(xArray, yArray, zArray, title, xLab, yLab, zLab, filename):
 	myFigure = plt.figure()
 	myFrame = myFigure.add_subplot(111, projection='3d')
-	# ~ myFrame.scatter(xArray, yArray, zArray, marker = "o")
-	myFrame.plot_trisurf(xArray, yArray, zArray)
+	myFrame.scatter(xArray, yArray, zArray, marker = "o")
+	# ~ myFrame.plot_trisurf(xArray, yArray, zArray)
 	
 	
 	# ~ myFrame.scatter(xArray, yArray, zArray, marker = "o", label = "TEST LABEL LOL")
@@ -83,7 +85,7 @@ def printGraph(xArray, yArray, zArray, title, xLab, yLab, zLab, filename):
 	# ~ myFrame.legend()
 	# ~ myFrame.legend(loc = 6, ncol = 1)
 	
-	plt.savefig("./pics/" + filename + ".png")
+	plt.savefig(filename + ".png")
 	# ~ plt.show()#
 	plt.clf()
 

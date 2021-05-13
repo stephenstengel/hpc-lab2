@@ -12,23 +12,27 @@ import plotting
 
 
 def main(args):
-	if len(args) != 2:
+	if len(args) != 3:
 		print("bad input");
 		sys.exit(-1)
 	else:
 		filename = sys.argv[1]
+		picFile = sys.argv[2]
 	
+	#m n t time name
 	data = plotting.readListListFromFile(filename)
 	
-	X, Y, Z = plotting.convertToThreeArrays(data)
+	# ~ X, Y, Z = plotting.convertToThreeArrays(data)
+	M, N, T, TIME, NAME = plotting.convertToFiveArrays(data)
 	
-	# ~ picOutName = "lab1-CARRAY" + filename[8:]
-	picOutName = filename[8:]
-	plotting.printGraph(X, Y, Z,
-			"C Array Time for Each Test. (Min of three trials)",
-			"Square Size (M)", "Multiplications (N)", "Time in seconds", picOutName)
+	print("Still working!")
+	
+	
+	plotting.printGraph(M, T, TIME,
+			"Time for Individual Cell Method.",
+			"Square Size (M)", "Threads (T)", "Time in seconds", picFile)
 	os.system("sync")
-	os.system(f"optipng ../pics/{picOutName}.png")
+	# ~ os.system(f"optipng ../pics/{picOutName}.png")
 	
 	return 0
 

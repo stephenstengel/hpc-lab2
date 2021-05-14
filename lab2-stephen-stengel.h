@@ -32,68 +32,7 @@ void writeDataToFile(char * filename, int m, int n, int t, double time, char * t
 }
 
 
-//this tests times for running each separate thread size
-int runThreadTest(char * dataFile, char * picsFile, int maxM, int N, int maxT, char * testType)
-{
-	//~ printf("enter any number to continue...\n");
-	//~ int a;
-	//~ scanf("%d", &a);
-	
-	//~ printf("num threads in pool: %d\n", omp_get_num_threads());
-	
-	//create timer variables.
-	struct timespec start, finish;
-	double lowest = INT_MAX;
-	double elapsedTime = -1;
-	
-	int tIncrement = 1;
-	if ((maxT / 10) > 1)
-	{
-		tIncrement = maxT / 10;
-	}
-	printf("tIncrement: %d\n", tIncrement);
-	for (int tee = 1; tee <= maxT; tee += tIncrement)
-	{
-		#pragma omp parallel num_threads(tee)
-		{
-			#pragma omp single nowait
-			printf("num threads in use: %d\n", omp_get_num_threads());
-		
-			#pragma omp for private(start, finish, lowest, elapsedTime) nowait
-			for (int i = 1; i < maxM + 1; i++)
-			{
-				//create array
-				int sizeThisRound = i;
-				//~ int teeThisRound = j;
-				double **myArray = createSquareArray(sizeThisRound);
-				myArray = fillSquareArrayRandomDoubles(myArray, sizeThisRound);
-				
-				//do three tests timing each
-				lowest = INT_MAX;
-				for (int k = 0; k < 3; k++)
-				{
-					clock_gettime(CLOCK_MONOTONIC, &start);
-					powerArrays(myArray, sizeThisRound, N);
-					elapsedTime = getElapsedTime(start, finish);
-					if (elapsedTime < lowest)
-					{
-						lowest = elapsedTime;
-					}
-				}
-		
-				//~ //append the i, j, time to a file
-				#pragma omp critical
-				{
-					writeDataToFile(dataFile, sizeThisRound, N, omp_get_num_threads(), lowest, testType);
-				}
-				freeSquareDoubleArray(myArray, sizeThisRound);
-			}
-		}//end of parallel section.
-	}//end of loop that varies num threads
-	
-	printf("runthreadtest complete!\n");
-	return 0;
-}
+
 
 //This tests the time of the given function. col, row, or individual. maybe block if I have time.
 //The given function will handle printing? This function will handle the parameters going to the
@@ -219,8 +158,6 @@ double **multSquareArraysThreadCell(double **original, double **intermediate, do
 				double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
-					//critical here? no, each thread has own spot.
-					//false sharing though, need to move array copies into this parallel section.
 					tmp += original[i][k] * intermediate[k][j];
 				}
 				output[i][j] = tmp;
@@ -275,8 +212,6 @@ double **multSquareArraysThreadCol(double **original, double **intermediate, dou
 				double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
-					//critical here? no, each thread has own spot.
-					//false sharing though, need to move array copies into this parallel section.
 					tmp += original[i][k] * intermediate[k][j];
 				}
 				output[i][j] = tmp;
@@ -296,3 +231,72 @@ void doAlmostNothing()
 }
 
 #endif
+
+
+
+//Unused
+/*
+//this tests times for running each separate thread size
+int runThreadTest(char * dataFile, char * picsFile, int maxM, int N, int maxT, char * testType)
+{
+	//~ printf("enter any number to continue...\n");
+	//~ int a;
+	//~ scanf("%d", &a);
+	
+	//~ printf("num threads in pool: %d\n", omp_get_num_threads());
+	
+	//create timer variables.
+	struct timespec start, finish;
+	double lowest = INT_MAX;
+	double elapsedTime = -1;
+	
+	int tIncrement = 1;
+	if ((maxT / 10) > 1)
+	{
+		tIncrement = maxT / 10;
+	}
+	printf("tIncrement: %d\n", tIncrement);
+	for (int tee = 1; tee <= maxT; tee += tIncrement)
+	{
+		//~ #pragma omp parallel num_threads(tee)
+		{
+			//~ #pragma omp single nowait
+			printf("num threads in use: %d\n", omp_get_num_threads());
+		
+			//~ #pragma omp for private(start, finish, lowest, elapsedTime) nowait
+			for (int i = 1; i < maxM + 1; i++)
+			{
+				//create array
+				int sizeThisRound = i;
+				//~ int teeThisRound = j;
+				double **myArray = createSquareArray(sizeThisRound);
+				myArray = fillSquareArrayRandomDoubles(myArray, sizeThisRound);
+				
+				//do three tests timing each
+				lowest = INT_MAX;
+				for (int k = 0; k < 3; k++)
+				{
+					clock_gettime(CLOCK_MONOTONIC, &start);
+					powerArrays(myArray, sizeThisRound, N);
+					elapsedTime = getElapsedTime(start, finish);
+					if (elapsedTime < lowest)
+					{
+						lowest = elapsedTime;
+					}
+				}
+		
+				//~ //append the i, j, time to a file
+				//~ #pragma omp critical
+				{
+					//~ writeDataToFile(dataFile, sizeThisRound, N, omp_get_num_threads(), lowest, testType);
+					writeDataToFile(dataFile, sizeThisRound, N, tee, lowest, testType);
+				}
+				freeSquareDoubleArray(myArray, sizeThisRound);
+			}
+		}//end of parallel section.
+	}//end of loop that varies num threads
+	
+	printf("runthreadtest complete!\n");
+	return 0;
+}
+*/

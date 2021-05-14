@@ -111,12 +111,18 @@ int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, i
 	//~ for (int tee = 1; tee <= maxT; tee += tIncrement)
 	//~ for (int tee = maxT; tee > 0; tee -= tIncrement)
 	
+	int mStep = 1;
+	if ( maxM > 100 )
+	{
+		mStep = maxM / 20; //20 chosen because it is a good balance.
+	}
+	
 	int tTop = maxT - (maxT - (tIncrement * (numThreadTests - 1))) + 1;
 	printf("tTop: %d\n", tTop);
 	for (int tee = tTop; tee > 0; tee -= tIncrement)//backwards keeps openMP from killing useful threads
 	{
 		printf("This T: %d\n", tee);
-		for (int m = 1; m < maxM + 1; m++)
+		for (int m = 1; m < maxM + 1; m += mStep)
 		{
 			double **myArray = createSquareArray(m);
 			myArray = fillSquareArrayRandomDoubles(myArray, m);

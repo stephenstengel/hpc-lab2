@@ -1,4 +1,22 @@
-helpfile lol
+#############################################
+#                                           #
+# Lab2  Multithreaded Matrix Multiplication #
+#                                           #
+#############################################
+
+Usage:
+	./lab2 M N T
+
+Examples:
+	./lab2 100 2 10
+	./lab2 101 3 150
+
+N must be at least 2 to multiply.
+T should be at least 10.
+
 M: Max size of each side of square matrix
 N: The number of times to power. Does not vary in these tests.
 T: Max number of threads in thread pool.
+
+Stephen Stengel  <stephen.stengel@cwu.edu>  40819903
+####################################################

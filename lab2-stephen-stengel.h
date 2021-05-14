@@ -11,8 +11,6 @@
 #define MAX_STR_LEN 50
 
 
-
-
 //function definitions
 void testStringPass(char * dataStr);
 void writeDataToFile(char * filename, int m, int n, int t, double time, char * testType);
@@ -32,13 +30,12 @@ void writeDataToFile(char * filename, int m, int n, int t, double time, char * t
 }
 
 
-
-
 //This tests the time of the given function. col, row, or individual. maybe block if I have time.
 //The given function will handle printing? This function will handle the parameters going to the
 //test function.
 int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, int N, int maxT, char * testType)
 {
+	double start = omp_get_wtime();
 	int numThreadTests = 10;
 	int tIncrement = 1;
 	if ((maxT / numThreadTests) > 1)
@@ -47,8 +44,6 @@ int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, i
 	}
 	printf("tIncrement: %d\n", tIncrement);
 	
-	//~ for (int tee = 1; tee <= maxT; tee += tIncrement)
-	//~ for (int tee = maxT; tee > 0; tee -= tIncrement)
 	
 	int mStep = 1;
 	if ( maxM > 100 )
@@ -72,13 +67,14 @@ int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, i
 		}
 	}//end of loop that varies num threads
 	
-	printf("runfunctest: %s complete! now printing to file...\n", testType);
+	double elapsedTime = omp_get_wtime() - start;
+	printf("runfunctest: %s complete in %.2fs! now printing to file...\n", testType, elapsedTime);
+	
 	//make graph
 	char printCommandCell[MAX_COMMAND_LEN];
 	sprintf(printCommandCell, "python3 cArrayGraph.py %s %s %s", dataFile, picsFile, testType);
-	
 	system( printCommandCell );
-	printf("done!");
+	printf("done!\n");
 	
 	return 0;
 }
@@ -86,11 +82,6 @@ int runFuncTest(double **myFunc(), char * dataFile, char * picsFile, int maxM, i
 //gets the time of doin it this way
 void timeThisWay(double **myFunc(), double **myArray, char *dataFile, char *picsFile, int m, int N, int tee, char *testType)
 {
-	//~ #pragma omp parallel 
-	//~ {
-		//~ //Prevent threads from being deleted due to timeout.
-	//~ }
-
 	double lowest = INT_MAX;
 	double elapsedTime = -1;
 	
@@ -111,12 +102,8 @@ void timeThisWay(double **myFunc(), double **myArray, char *dataFile, char *pics
 //calls the specific multiplication func needed and returns runtime minus thread creation (should be zero because openmp keeps threads sleeping)
 double powerArraysThisWay(double **myFunc(), double **myArray, int m, int N, int tee)
 {
-	//~ #pragma omp parallel
-	//~ {
-		//~ //Prevent threads from being deleted due to timeout.
-	//~ }
-	
-	double **originalCopy = copySquareDoubleArray(myArray, m);
+	//~ double **originalCopy = copySquareDoubleArray(myArray, m);
+	double **originalCopy = myArray;
 	double **intermediate = copySquareDoubleArray(myArray, m);
 	
 	//create timing vars here
@@ -124,6 +111,7 @@ double powerArraysThisWay(double **myFunc(), double **myArray, int m, int N, int
 	double elapsedTime = -1;
 	
 	clock_gettime(CLOCK_MONOTONIC, &start);
+	//~ double ompTimeStart = omp_get_wtime();
 	for (int i = 1; i < N; i++)
 	{
 		double **output = createSquareArray(m);
@@ -134,28 +122,34 @@ double powerArraysThisWay(double **myFunc(), double **myArray, int m, int N, int
 		
 		freeSquareDoubleArray(output, m);
 	}
-	elapsedTime = getElapsedTime(start, finish);	
+	elapsedTime = getElapsedTime(start, finish);
+	//~ double ompTimeElapsed = omp_get_wtime() - ompTimeStart;
+	
+	//~ if (  abs(ompTimeElapsed - elapsedTime) > 0 )
+	//~ {
+		//~ printf("time.h time: %f\tomp_get_wtime(): %f\n", elapsedTime, ompTimeElapsed);
+	//~ }
 					
 	freeSquareDoubleArray(intermediate, m);
-	freeSquareDoubleArray(originalCopy, m);
+	//~ freeSquareDoubleArray(originalCopy, m);
 	
 	return elapsedTime;
 }
 
 double **multSquareArraysThreadCell(double **original, double **intermediate, double **output, int size, int tee)
 {
-	int i = 0;
-	int j = 0;
-	int k = 0;
 	#pragma omp parallel num_threads(tee) //only use this many threads out of the threadpool
 	{
+		register int i = 0;
+		register int j = 0;
+		register int k = 0;
 		//~ printf("current T: %d\tnumThreads: %d\n", tee, omp_get_num_threads());
-		#pragma omp for collapse(2) private(i, j, k) nowait //each thread loops through the k's for each cell
+		#pragma omp for collapse(2) nowait //each thread loops through the k's for each cell
 		for (i = 0; i < size; i++)
 		{
 			for (j = 0; j < size; j++)
 			{
-				double tmp = output[i][j];
+				register double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
 					tmp += original[i][k] * intermediate[k][j];
@@ -170,21 +164,19 @@ double **multSquareArraysThreadCell(double **original, double **intermediate, do
 
 double **multSquareArraysThreadRow(double **original, double **intermediate, double **output, int size, int tee)
 {
-	int i = 0;
-	int j = 0;
-	int k = 0;
 	#pragma omp parallel num_threads(tee) //only use this many threads out of the threadpool
 	{
-		#pragma omp for private(i, j, k) nowait //each thread has its own row i.
+		register int i = 0;
+		register int j = 0;
+		register int k = 0;
+		#pragma omp for nowait //each thread has its own row i.
 		for (i = 0; i < size; i++)
 		{
 			for (j = 0; j < size; j++)
 			{
-				double tmp = output[i][j];
+				register double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
-					//critical here? no, each thread has own spot.
-					//false sharing though, need to move array copies into this parallel section.
 					tmp += original[i][k] * intermediate[k][j];
 				}
 				output[i][j] = tmp;
@@ -199,17 +191,17 @@ double **multSquareArraysThreadRow(double **original, double **intermediate, dou
 //Same as row but with the i and j loops switched.
 double **multSquareArraysThreadCol(double **original, double **intermediate, double **output, int size, int tee)
 {
-	int i = 0;
-	int j = 0;
-	int k = 0;
 	#pragma omp parallel num_threads(tee) //only use this many threads out of the threadpool
 	{
-		#pragma omp for private(i, j, k) nowait //each thread has its own col j.
+		register int i = 0;
+		register int j = 0;
+		register int k = 0;
+		#pragma omp for nowait //each thread has its own col j.
 		for (j = 0; j < size; j++)
 		{
 			for (i = 0; i < size; i++)
 			{
-				double tmp = output[i][j];
+				register double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
 					tmp += original[i][k] * intermediate[k][j];

@@ -210,12 +210,14 @@ double **multSquareArraysThreadCell(double **original, double **intermediate, do
 		{
 			for (j = 0; j < size; j++)
 			{
+				double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
 					//critical here? no, each thread has own spot.
 					//false sharing though, need to move array copies into this parallel section.
-					output[i][j] += original[i][k] * intermediate[k][j];
+					tmp += original[i][k] * intermediate[k][j];
 				}
+				output[i][j] = tmp;
 			}
 		}
 	}
@@ -235,12 +237,14 @@ double **multSquareArraysThreadRow(double **original, double **intermediate, dou
 		{
 			for (j = 0; j < size; j++)
 			{
+				double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
 					//critical here? no, each thread has own spot.
 					//false sharing though, need to move array copies into this parallel section.
-					output[i][j] += original[i][k] * intermediate[k][j];
+					tmp += original[i][k] * intermediate[k][j];
 				}
+				output[i][j] = tmp;
 			}
 		}
 	}
@@ -262,12 +266,14 @@ double **multSquareArraysThreadCol(double **original, double **intermediate, dou
 		{
 			for (i = 0; i < size; i++)
 			{
+				double tmp = output[i][j];
 				for (k = 0; k < size; k++)
 				{
 					//critical here? no, each thread has own spot.
 					//false sharing though, need to move array copies into this parallel section.
-					output[i][j] += original[i][k] * intermediate[k][j];
+					tmp += original[i][k] * intermediate[k][j];
 				}
+				output[i][j] = tmp;
 			}
 		}
 	}

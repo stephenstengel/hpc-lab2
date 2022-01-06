@@ -1,0 +1,1 @@
+My lab2 for high performance computing class. It uses OpenMP to handle matrix multiplication with threads. Some of my functions in mylab1functions.h are buggy, but I didn't use them for the project.

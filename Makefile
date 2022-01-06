@@ -23,7 +23,8 @@ backup:
 .PHONY: zip
 zip:
 	7z a lab2-stephen-stengel.zip *.c *.h *.py Makefile helpfile \
-			../paper/stephen-stengel-lab2.pdf ../video/*.mkv
+			../paper/stephen-stengel-lab2.pdf ../video/*.mkv ../pics \
+			../data
 	
 	##README
 
